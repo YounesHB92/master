@@ -96,5 +96,8 @@ class DatasetLoader:
         Prints a summary of the datasets, including the number of classes and their names.
         """
         self.num_classes = len(self.train_dataset.classes)
-        print(f"Datasets are ready!\n\tDetected {self.num_classes} classes: \n\t\t{'\n\t\t'.join(self.train_dataset.classes)}".encode('utf-8').decode('utf-8'))
+        print("Datasets are ready!")
+        print(f"\tDetected {self.num_classes} classes:")
+        for class_name in self.train_dataset.classes:
+            print(f"\t\t{class_name}")
         print("datasets_.train_loader and datasets_.val_loader to be used!")
