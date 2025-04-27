@@ -1,103 +1,162 @@
-import torchvision.transforms as transforms
-from torch.utils.data import DataLoader
-from torchvision.datasets import ImageFolder
+import cv2 as cv
+import torch
+import albumentations as A
+from albumentations.pytorch import ToTensorV2
 
 
-class DatasetLoader:
+class DatasetLoader(torch.utils.data.Dataset):
     """
-    A class to load and preprocess datasets for training and validation.
+    A PyTorch Dataset class for loading and preprocessing images and masks for semantic segmentation.
 
     Attributes:
-        train_path (str): Path to the training dataset.
-        val_path (str): Path to the validation dataset.
-        batch_size (int): Number of samples per batch.
-        patch_size (int): Size to which images are resized (default is 224).
-        augment (bool): Whether to apply experiments augmentation (default is True).
-        train_transformer (torchvision.transforms.Compose): Transformations for the training dataset.
-        val_transformer (torchvision.transforms.Compose): Transformations for the validation dataset.
-        train_dataset (torchvision.datasets.ImageFolder): Training dataset.
-        val_dataset (torchvision.datasets.ImageFolder): Validation dataset.
-        train_loader (torch.utils.data.DataLoader): DataLoader for the training dataset.
-        val_loader (torch.utils.data.DataLoader): DataLoader for the validation dataset.
-        num_classes (int): Number of classes in the training dataset.
+        image_paths (list): List of file paths to the input images.
+        mask_paths (list): List of file paths to the corresponding segmentation masks.
+        path_size (int): The size to which images and masks will be resized.
+        augment (bool): Whether to apply data augmentation to the images and masks.
+        mode (str): The task mode, either 'binary' for binary segmentation or 'multiclass' for multi-class segmentation.
     """
 
-    def __init__(
-            self,
-            train_path,
-            val_path,
-            batch_size,
-            patch_size=224,
-            augment=True
-    ):
+    def __init__(self, image_paths, mask_paths, path_size, augment=True, mode='multiclass'):
         """
-        Initializes the DatasetLoader with paths, batch size, patch size, and augmentation settings.
+        Initializes the DatasetLoader.
 
         Args:
-            train_path (str): Path to the training dataset.
-            val_path (str): Path to the validation dataset.
-            batch_size (int): Number of samples per batch.
-            patch_size (int, optional): Size to which images are resized. Defaults to 224.
-            augment (bool, optional): Whether to apply experiments augmentation. Defaults to True.
+            image_paths (list): List of file paths to the input images.
+            mask_paths (list): List of file paths to the corresponding segmentation masks.
+            path_size (int): The size to which images and masks will be resized.
+            augment (bool, optional): Whether to apply data augmentation. Defaults to True.
+            mode (str, optional): The task mode ('binary' or 'multiclass'). Defaults to 'multiclass'.
         """
-        self.train_path = train_path
-        self.val_path = val_path
+        self.image_paths = image_paths
+        self.mask_paths = mask_paths
+        self.path_size = path_size
         self.augment = augment
-        self.batch_size = batch_size
-        self.patch_size = patch_size
-        self.create_transformer()
-        self.get_paths_ready()
-        self.create_data_loaders()
-        self.report()
+        self.mode = mode.lower()  # force lower case
 
-    def create_transformer(self):
+    def __len__(self):
         """
-        Creates experiments transformations for training and validation datasets.
-        Applies augmentation transformations if `self.augment` is True.
+        Returns the total number of samples in the dataset.
+
+        Returns:
+            int: The number of samples.
         """
-        base_transforms = [
-            transforms.Resize((self.patch_size, self.patch_size)),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                 std=[0.229, 0.224, 0.225])
-        ]
+        return len(self.image_paths)
+
+    def __getitem__(self, idx):
+        """
+        Retrieves the image and mask at the specified index, applies transformations, and returns them.
+
+        Args:
+            idx (int): The index of the sample to retrieve.
+
+        Returns:
+            tuple: A tuple containing the transformed image (torch.Tensor) and mask (torch.Tensor).
+        """
+        image = self.load_image(self.image_paths[idx])
+        mask = self.load_mask(self.mask_paths[idx])
 
         if self.augment:
-            augment_transforms = [
-                transforms.RandomHorizontalFlip(),
-                transforms.RandomRotation(30),
-                transforms.RandomResizedCrop(self.patch_size, scale=(0.7, 1.0)),
-                transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
-                transforms.RandomGrayscale(p=0.1),
-                transforms.RandomAffine(degrees=20, translate=(0.1, 0.1), scale=(0.9, 1.1), shear=10),
-            ]
-            self.train_transformer = transforms.Compose(augment_transforms + base_transforms)
+            augmented = self.transform_augmented(image=image, mask=mask)
+            image = augmented['image']
+            mask = augmented['mask']
         else:
-            self.train_transformer = transforms.Compose(base_transforms)
+            no_augment = self.transform_no_augment(image=image, mask=mask)
+            image = no_augment['image']
+            mask = no_augment['mask']
 
-        self.val_transformer = transforms.Compose(base_transforms)
+        # Set correct mask dtype depending on task
+        if self.mode == 'binary':
+            mask = mask.float()  # For BCEWithLogitsLoss / BinaryFocal
+        elif self.mode == 'multiclass':
+            mask = mask.long()  # For CrossEntropyLoss / FocalLoss (multi-class)
+        else:
+            raise ValueError(f"Unknown mode {self.mode}. Use 'binary' or 'multiclass'.")
 
-    def get_paths_ready(self):
-        """
-        Prepares the training and validation datasets using the specified transformations.
-        """
-        self.train_dataset = ImageFolder(self.train_path, transform=self.train_transformer)
-        self.val_dataset = ImageFolder(self.val_path, transform=self.val_transformer)
+        return image, mask
 
-    def create_data_loaders(self):
+    def load_image(self, path):
         """
-        Creates DataLoaders for the training and validation datasets.
-        """
-        self.train_loader = DataLoader(self.train_dataset, batch_size=self.batch_size, shuffle=True)
-        self.val_loader = DataLoader(self.val_dataset, batch_size=self.batch_size, shuffle=False)
+        Loads an image from the specified file path and converts it to RGB format.
 
-    def report(self):
+        Args:
+            path (str): The file path to the image.
+
+        Returns:
+            numpy.ndarray: The loaded image in RGB format.
         """
-        Prints a summary of the datasets, including the number of classes and their names.
+        image = cv.imread(path)
+        image = cv.cvtColor(image, cv.COLOR_BGR2RGB)
+        return image
+
+    def load_mask(self, path):
         """
-        self.num_classes = len(self.train_dataset.classes)
-        print("Datasets are ready!")
-        print(f"\tDetected {self.num_classes} classes:")
-        for class_name in self.train_dataset.classes:
-            print(f"\t\t{class_name}")
-        print("datasets_.train_loader and datasets_.val_loader to be used!")
+        Loads a segmentation mask from the specified file path in grayscale format.
+
+        Args:
+            path (str): The file path to the mask.
+
+        Returns:
+            numpy.ndarray: The loaded mask in grayscale format.
+        """
+        mask = cv.imread(path, 0)  # grayscale
+        return mask
+
+    def transform_augmented(self, image, mask):
+        """
+        Applies data augmentation transformations to the image and mask.
+
+        Args:
+            image (numpy.ndarray): The input image.
+            mask (numpy.ndarray): The corresponding segmentation mask.
+
+        Returns:
+            dict: A dictionary containing the augmented image and mask.
+        """
+        transform = A.Compose([
+            A.Resize(self.path_size, self.path_size),
+            A.HorizontalFlip(p=0.5),
+            A.VerticalFlip(p=0.2),
+            A.RandomRotate90(p=0.5),
+            A.ShiftScaleRotate(
+                shift_limit=0.0625, scale_limit=0.1, rotate_limit=15,
+                p=0.5, border_mode=0
+            ),
+            A.RandomBrightnessContrast(
+                brightness_limit=0.2, contrast_limit=0.2, p=0.5
+            ),
+            A.RandomGamma(
+                gamma_limit=(80, 120), p=0.3
+            ),
+            A.GaussNoise(
+                var_limit=(10.0, 50.0), p=0.2
+            ),
+            A.ElasticTransform(
+                alpha=1, sigma=50, alpha_affine=50, p=0.2
+            ),
+            A.GridDistortion(p=0.2),
+            A.Normalize(
+                mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)
+            ),
+            ToTensorV2()
+        ])
+        return transform(image=image, mask=mask)
+
+    def transform_no_augment(self, image, mask):
+        """
+        Applies basic transformations (resizing and normalization) to the image and mask.
+
+        Args:
+            image (numpy.ndarray): The input image.
+            mask (numpy.ndarray): The corresponding segmentation mask.
+
+        Returns:
+            dict: A dictionary containing the transformed image and mask.
+        """
+        transform = A.Compose([
+            A.Resize(self.path_size, self.path_size),
+            A.Normalize(
+                mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)
+            ),
+            ToTensorV2()
+        ])
+        return transform(image=image, mask=mask)

@@ -5,6 +5,9 @@ from datetime import datetime
 import torch
 from tqdm import tqdm
 import pytz
+from dotenv import load_dotenv
+load_dotenv()
+
 
 
 class Trainer(object):
