@@ -1,162 +1,57 @@
-import cv2 as cv
+import os
+
 import torch
-import albumentations as A
-from albumentations.pytorch import ToTensorV2
+
+from src.utils import print_indented
 
 
-class DatasetLoader(torch.utils.data.Dataset):
-    """
-    A PyTorch Dataset class for loading and preprocessing images and masks for semantic segmentation.
+class DatasetLoader:
+    def __init__(self, dataset, classes, batch_size, shuffle=True, num_workers=4, report=True):
+        self.dataset = dataset
+        self.classes = classes
+        self.batch_size = batch_size
+        self.shuffle = shuffle
+        self.num_workers = num_workers
+        self.report = report
+        self.loader = self.create_loader()
+        if self.report:
+            self.print_report()
+            self.print_random_sample()
 
-    Attributes:
-        image_paths (list): List of file paths to the input images.
-        mask_paths (list): List of file paths to the corresponding segmentation masks.
-        path_size (int): The size to which images and masks will be resized.
-        augment (bool): Whether to apply data augmentation to the images and masks.
-        mode (str): The task mode, either 'binary' for binary segmentation or 'multiclass' for multi-class segmentation.
-    """
+    def print_report(self):
+        print("\n")
+        print("-" * 50)
+        print(f"\033[1m{self.dataset.set_name.upper()}\033[0m dataset Loader Report:")
+        print_indented(f"Number of samples: {len(self.dataset.images_paths)}")
+        print_indented(f"Batch size: {self.batch_size}")
+        print_indented(f"Shuffle: {self.shuffle}")
+        print_indented(f"Number of workers: {self.num_workers}")
+        print("-" * 50)
 
-    def __init__(self, image_paths, mask_paths, path_size, augment=True, mode='multiclass'):
-        """
-        Initializes the DatasetLoader.
+    def create_loader(self):
+        return torch.utils.data.DataLoader(
+            self.dataset,
+            batch_size=self.batch_size,
+            shuffle=self.shuffle,
+            num_workers=self.num_workers
+        )
 
-        Args:
-            image_paths (list): List of file paths to the input images.
-            mask_paths (list): List of file paths to the corresponding segmentation masks.
-            path_size (int): The size to which images and masks will be resized.
-            augment (bool, optional): Whether to apply data augmentation. Defaults to True.
-            mode (str, optional): The task mode ('binary' or 'multiclass'). Defaults to 'multiclass'.
-        """
-        self.image_paths = image_paths
-        self.mask_paths = mask_paths
-        self.path_size = path_size
-        self.augment = augment
-        self.mode = mode.lower()  # force lower case
+    def print_random_sample(self):
+        print("Random samples from dataset:")
+        idx = torch.randint(0, len(self.dataset.images_paths), (1,)).item()
+        sample = self.dataset[idx]
 
-    def __len__(self):
-        """
-        Returns the total number of samples in the dataset.
+        # handle different types of datasets
+        if isinstance(sample, tuple) and len(sample) >= 2:
+            image, mask = sample[0], sample[1]
+            idx = mask[mask!=0].reshape(-1).tolist()[0]
+            print_indented(f"Chosen sample type: {list(self.classes.keys())[idx]}")
+            print_indented(f"Image shape: {image.shape}")
+            print_indented(f"Mask shape: {mask.shape}")
 
-        Returns:
-            int: The number of samples.
-        """
-        return len(self.image_paths)
-
-    def __getitem__(self, idx):
-        """
-        Retrieves the image and mask at the specified index, applies transformations, and returns them.
-
-        Args:
-            idx (int): The index of the sample to retrieve.
-
-        Returns:
-            tuple: A tuple containing the transformed image (torch.Tensor) and mask (torch.Tensor).
-        """
-        image = self.load_image(self.image_paths[idx])
-        mask = self.load_mask(self.mask_paths[idx])
-
-        if self.augment:
-            augmented = self.transform_augmented(image=image, mask=mask)
-            image = augmented['image']
-            mask = augmented['mask']
-        else:
-            no_augment = self.transform_no_augment(image=image, mask=mask)
-            image = no_augment['image']
-            mask = no_augment['mask']
-
-        # Set correct mask dtype depending on task
-        if self.mode == 'binary':
-            mask = mask.float()  # For BCEWithLogitsLoss / BinaryFocal
-        elif self.mode == 'multiclass':
-            mask = mask.long()  # For CrossEntropyLoss / FocalLoss (multi-class)
-        else:
-            raise ValueError(f"Unknown mode {self.mode}. Use 'binary' or 'multiclass'.")
-
-        return image, mask
-
-    def load_image(self, path):
-        """
-        Loads an image from the specified file path and converts it to RGB format.
-
-        Args:
-            path (str): The file path to the image.
-
-        Returns:
-            numpy.ndarray: The loaded image in RGB format.
-        """
-        image = cv.imread(path)
-        image = cv.cvtColor(image, cv.COLOR_BGR2RGB)
-        return image
-
-    def load_mask(self, path):
-        """
-        Loads a segmentation mask from the specified file path in grayscale format.
-
-        Args:
-            path (str): The file path to the mask.
-
-        Returns:
-            numpy.ndarray: The loaded mask in grayscale format.
-        """
-        mask = cv.imread(path, 0)  # grayscale
-        return mask
-
-    def transform_augmented(self, image, mask):
-        """
-        Applies data augmentation transformations to the image and mask.
-
-        Args:
-            image (numpy.ndarray): The input image.
-            mask (numpy.ndarray): The corresponding segmentation mask.
-
-        Returns:
-            dict: A dictionary containing the augmented image and mask.
-        """
-        transform = A.Compose([
-            A.Resize(self.path_size, self.path_size),
-            A.HorizontalFlip(p=0.5),
-            A.VerticalFlip(p=0.2),
-            A.RandomRotate90(p=0.5),
-            A.ShiftScaleRotate(
-                shift_limit=0.0625, scale_limit=0.1, rotate_limit=15,
-                p=0.5, border_mode=0
-            ),
-            A.RandomBrightnessContrast(
-                brightness_limit=0.2, contrast_limit=0.2, p=0.5
-            ),
-            A.RandomGamma(
-                gamma_limit=(80, 120), p=0.3
-            ),
-            A.GaussNoise(
-                var_limit=(10.0, 50.0), p=0.2
-            ),
-            A.ElasticTransform(
-                alpha=1, sigma=50, alpha_affine=50, p=0.2
-            ),
-            A.GridDistortion(p=0.2),
-            A.Normalize(
-                mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)
-            ),
-            ToTensorV2()
-        ])
-        return transform(image=image, mask=mask)
-
-    def transform_no_augment(self, image, mask):
-        """
-        Applies basic transformations (resizing and normalization) to the image and mask.
-
-        Args:
-            image (numpy.ndarray): The input image.
-            mask (numpy.ndarray): The corresponding segmentation mask.
-
-        Returns:
-            dict: A dictionary containing the transformed image and mask.
-        """
-        transform = A.Compose([
-            A.Resize(self.path_size, self.path_size),
-            A.Normalize(
-                mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)
-            ),
-            ToTensorV2()
-        ])
-        return transform(image=image, mask=mask)
+        if hasattr(self.dataset, 'images_paths') and hasattr(self.dataset, 'masks_paths'):
+            image_file = os.path.basename(self.dataset.images_paths[idx])
+            mask_file = os.path.basename(self.dataset.masks_paths[idx])
+            print_indented(f"Image file: {image_file}")
+            print_indented(f"Mask file: {mask_file}")
+        print("-" * 50)

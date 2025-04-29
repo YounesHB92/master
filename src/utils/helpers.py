@@ -1,3 +1,6 @@
+from tqdm import tqdm
+import sys
+
 def find_encoder_name(model_name):
     parts = model_name.split("_")
     encoder_index = None
@@ -13,3 +16,22 @@ def find_encoder_name(model_name):
 
     encoder_name = parts[encoder_index+1:epoch_index]
     return "_".join(encoder_name)
+
+def find_env():
+    try:
+        import google.colab
+        return "colab"
+    except ImportError:
+        return "local"
+
+def inspect_object(obj):
+    print(f"Inspecting object: {obj.__class__.__name__}")
+    for attr, value in vars(obj).items():
+        print(f"{attr}: {value}")
+
+def tqdm_print(*args, **kwargs):
+    return tqdm(*args, file=sys.stdout, **kwargs)
+
+def print_indented(text, level=1):
+    indent = "\t" * level
+    print(indent + text)

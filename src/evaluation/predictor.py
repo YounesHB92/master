@@ -17,7 +17,7 @@ class Predictor:
     def predict_all(self, images_path):
         print(f"Checking path: {images_path}")
 
-        self.classes = self.train_dataset.classes
+        self.classes = self.train_dataset.num_classes
         for class_ in self.classes:
             path_ = os.path.join(images_path, class_)
             for image_ in os.listdir(path_):
@@ -56,7 +56,7 @@ class Predictor:
             outputs = self.model(image)
             _, predicted = torch.max(outputs, 1)
 
-        return self.train_dataset.classes[predicted.item()]
+        return self.train_dataset.num_classes[predicted.item()]
 
     def report(self):
         print("Predictor is ready!\n\npredictor_.predict_image to be used.")
