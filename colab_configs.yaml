@@ -1,0 +1,75 @@
+config_1:
+  splitter:
+    task: "segmentation"
+    test_val_ratio: 0.2
+    classes_list: [ "background", "crack" ]
+    force_directory: False
+
+  datasets:
+    train:
+      iterator:
+        set_name: "train"
+        patch_size: 256
+        augment: True
+      loader:
+        batch_size: 4
+        shuffle: True
+        num_workers: 4
+        report: True
+    val:
+      iterator:
+        set_name: "val"
+        patch_size: 256
+        augment: False
+      loader:
+        batch_size: 4
+        shuffle: False
+        num_workers: 4
+        report: True
+
+  model:
+    model_name: "Unet"
+    encoder_name: "resnet34"
+    encoder_weights: "imagenet"
+    num_classes: 1
+
+  trainer:
+    epochs: 5
+
+config_2:
+  splitter:
+    task: "segmentation"
+    test_val_ratio: 0.2
+    classes_list: [ "background", "crack" ]
+    force_directory: False
+
+  datasets:
+    train:
+      iterator:
+        set_name: "train"
+        patch_size: 512
+        augment: True
+      loader:
+        batch_size: 4
+        shuffle: True
+        num_workers: 4
+        report: True
+    val:
+      iterator:
+        set_name: "val"
+        patch_size: 512
+        augment: False
+      loader:
+        batch_size: 4
+        shuffle: False
+        num_workers: 4
+        report: True
+
+  model:
+    model_name: "Unet"
+    encoder_name: "resnet34"
+    encoder_weights: "imagenet"
+    num_classes: 1
+
+  trainer:
+    epochs: 5

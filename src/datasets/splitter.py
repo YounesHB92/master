@@ -3,13 +3,13 @@ import os
 import numpy as np
 from PIL import Image
 from sklearn.model_selection import train_test_split
-from dotenv import load_dotenv
+from src.utils import load_env_variables
 from src.utils import print_indented
 import src.utils as utils
 import shutil
 import pandas as pd
 
-load_dotenv()
+_ = load_env_variables()
 
 
 class Splitter:

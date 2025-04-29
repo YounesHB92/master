@@ -4,9 +4,9 @@ import albumentations as A
 import torch
 from PIL import Image
 from albumentations.pytorch import ToTensorV2
-from dotenv import load_dotenv
+from src.utils import load_env_variables
 import numpy as np
-load_dotenv()
+_ = load_env_variables()
 
 
 class DatasetIterator(torch.utils.data.Dataset):

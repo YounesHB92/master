@@ -1,5 +1,6 @@
 from tqdm import tqdm
 import sys
+from dotenv import load_dotenv
 
 def find_encoder_name(model_name):
     parts = model_name.split("_")
@@ -35,3 +36,9 @@ def tqdm_print(*args, **kwargs):
 def print_indented(text, level=1):
     indent = "\t" * level
     print(indent + text)
+
+def load_env_variables():
+    environment = find_env()
+    dotenv_path = ".env." + environment
+    load_dotenv(dotenv_path=dotenv_path)
+    return environment
