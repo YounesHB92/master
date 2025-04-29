@@ -4,7 +4,7 @@ envs:
       task: "segmentation"
       test_val_ratio: 0.2
       classes_list: ["background", "crack"]
-      force_directory: False
+      force_directory: True
 
     datasets:
       train:

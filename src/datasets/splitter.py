@@ -49,9 +49,34 @@ class Splitter:
         self.check_images_files(self.raw_masks_path)
         masks_files = os.listdir(self.raw_masks_path)
 
+        x_train, x_test, y_train, y_test = train_test_split(images_files, masks_files,
+                                                            test_size=self.test_val_ratio,
+                                                            random_state=42)
+        x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size=self.test_val_ratio,
+                                                          random_state=42)
+        sets = {
+            "train": {
+                "images": [file for file in x_train],
+                "masks": [file for file in y_train]
+            },
+            "val": {
+                "images": [file for file in x_val],
+                "masks": [file for file in y_val]
+            },
+            "test": {
+                "images": [file for file in x_test],
+                "masks": [file for file in y_test]
+            }
+        }
+
         # checking the split directory if it's full or not
         split_dir_files = os.listdir(os.getenv("SPLIT_DATA_DIR"))
-        if len(split_dir_files) > 0:
+        if len(split_dir_files) == 0:
+            print("Split directory is empty -> creating new directories.")
+            self.create_set_dirs(sets)
+            self.copy_sets(sets)
+
+        elif len(split_dir_files) > 0:
             print("\n")
             print("Split directory is not empty.")
             if self.force_directory:
@@ -63,35 +88,8 @@ class Splitter:
                     else:
                         os.remove(os.path.join(os.getenv("SPLIT_DATA_DIR"), dir_))
 
-                x_train, x_test, y_train, y_test = train_test_split(images_files, masks_files,
-                                                                    test_size=self.test_val_ratio,
-                                                                    random_state=42)
-                x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size=self.test_val_ratio,
-                                                                  random_state=42)
-                sets = {
-                    "train": {
-                        "images": [file for file in x_train],
-                        "masks": [file for file in y_train]
-                    },
-                    "val": {
-                        "images": [file for file in x_val],
-                        "masks": [file for file in y_val]
-                    },
-                    "test": {
-                        "images": [file for file in x_test],
-                        "masks": [file for file in y_test]
-                    }
-                }
-
-                # Create directories for train, val, and test sets
-                for set_name in sets.keys():
-                    os.mkdir(os.path.join(os.getenv("SPLIT_DATA_DIR"), set_name))
-                    os.mkdir(os.path.join(os.getenv("SPLIT_DATA_DIR"), set_name, "images"))
-                    os.mkdir(os.path.join(os.getenv("SPLIT_DATA_DIR"), set_name, "masks"))
-
-                # copy images and masks to the respective directories
-                for set_name, set_data in sets.items():
-                    self.copy_images_masks(set_name, set_data)
+                self.create_set_dirs(sets)
+                self.copy_sets(sets)
             else:
                 print("Skipping split directory creation and transfer.")
 
@@ -113,6 +111,16 @@ class Splitter:
             rebuilt_mask = self.rebuild_mask(mask_file)
             destination_path = os.path.join(os.getenv("SPLIT_DATA_DIR"), set_name, "masks", mask_file)
             Image.fromarray(rebuilt_mask).save(destination_path)
+
+    def create_set_dirs(self, sets):
+        for set_name in sets.keys():
+            os.mkdir(os.path.join(os.getenv("SPLIT_DATA_DIR"), set_name))
+            os.mkdir(os.path.join(os.getenv("SPLIT_DATA_DIR"), set_name, "images"))
+            os.mkdir(os.path.join(os.getenv("SPLIT_DATA_DIR"), set_name, "masks"))
+
+    def copy_sets(self, sets):
+        for set_name, set_data in sets.items():
+            self.copy_images_masks(set_name, set_data)
 
     def rebuild_mask(self, mask_file):
         # load_mask

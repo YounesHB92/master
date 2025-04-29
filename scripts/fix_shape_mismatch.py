@@ -7,7 +7,7 @@ RAW_IMAGES_PATH = "./datasets/raw/images"
 RAW_MASKS_PATH = "./datasets/raw/masks"
 
 # Optional: set True to overwrite masks, False to save fixed versions separately
-OVERWRITE = False
+OVERWRITE = True
 
 # Optional: where to save corrected masks
 FIXED_MASKS_PATH = "./datasets/raw/masks_fixed"
@@ -48,7 +48,6 @@ for img_name, mask_name in tqdm(zip(image_files, mask_files), total=len(image_fi
                 print(f"❌ Could not fix {mask_name} by rotation. Please check manually.")
                 continue  # Skip
 
-    # Save the fixed (or unchanged) mask
         if OVERWRITE:
             mask.save(mask_path)
         else:
