@@ -18,11 +18,11 @@ class Trainer:
 
         self.best_score = -1  # For tracking best val Mean IoU
         self.checkpoint_dir = os.path.join(os.getenv("CHECKPOINTS_DIR"), self.config_name + ".pt")
-        os.makedirs(self.checkpoint_dir, exist_ok=True)
+        os.makedirs(os.getenv("CHECKPOINTS_DIR"), exist_ok=True)
 
         # Create CSV log file
         self.log_dir = os.path.join(os.getenv("LOGS_DIR"), self.config_name + ".csv")
-        os.makedirs(self.log_dir, exist_ok=True)
+        os.makedirs(os.getenv("LOGS_DIR"), exist_ok=True)
         with open(self.log_dir, "w", newline="") as f:
             writer = csv.writer(f)
             writer.writerow(["epoch", "train_loss", "val_loss", "train_mean_iou", "val_mean_iou", "train_mean_dice", "val_mean_dice"])

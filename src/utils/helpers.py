@@ -39,6 +39,9 @@ def print_indented(text, level=1):
 
 def load_env_variables():
     environment = find_env()
-    dotenv_path = ".env." + environment
+    if environment == "colab":
+        dotenv_path = "/content/master/.env." + environment
+    else:
+        dotenv_path = ".env." + environment
     load_dotenv(dotenv_path=dotenv_path)
     return environment
