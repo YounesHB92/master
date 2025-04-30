@@ -28,7 +28,6 @@ class DatasetIterator(torch.utils.data.Dataset):
                 f"Image shape {image.shape[:2]} and mask shape {mask.shape[:2]} do not match!\nImage: {self.images_paths[idx]}\nMask: {self.masks_paths[idx]}"
             )
 
-
         if self.augment:
             augmented = self.transform_augmented(image=image, mask=mask)
             image = augmented['image']

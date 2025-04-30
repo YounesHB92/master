@@ -11,7 +11,6 @@ import pandas as pd
 
 _ = load_env_variables()
 
-
 class Splitter:
     def __init__(self, task, test_val_ratio, classes_list, force_directory=True):
         self.raw_images_path = os.path.join(os.getenv("RAW_DATA_DIR"), "images")

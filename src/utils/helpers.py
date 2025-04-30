@@ -1,6 +1,7 @@
 from tqdm import tqdm
 import sys
 from dotenv import load_dotenv
+import yaml
 
 def find_encoder_name(model_name):
     parts = model_name.split("_")
@@ -45,3 +46,10 @@ def load_env_variables():
         dotenv_path = ".env." + environment
     load_dotenv(dotenv_path=dotenv_path)
     return environment
+
+def find_configs():
+    env = find_env()
+    configs_file = f"{env}_configs.yaml"
+    with open(configs_file, "r") as file:
+        configs = yaml.safe_load(file)
+    return configs
