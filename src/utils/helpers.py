@@ -49,7 +49,10 @@ def load_env_variables():
 
 def find_configs():
     env = find_env()
-    configs_file = f"{env}_configs.yaml"
+    if env == "colab":
+        configs_file = "/content/master/colab_configs.yaml"
+    else:
+        configs_file = "local_configs.yaml"
     with open(configs_file, "r") as file:
         configs = yaml.safe_load(file)
     return configs
