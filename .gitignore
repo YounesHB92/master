@@ -2,3 +2,5 @@
 /.ipynb_checkpoints
 /datasets.tar.gz
 /experiments
+/.env.colab
+/.env.local

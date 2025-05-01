@@ -2,6 +2,8 @@ from tqdm import tqdm
 import sys
 from dotenv import load_dotenv
 import yaml
+from twilio.rest import Client
+
 
 def find_encoder_name(model_name):
     parts = model_name.split("_")
@@ -16,8 +18,9 @@ def find_encoder_name(model_name):
     if encoder_index is None or epoch_index is None:
         raise Exception("Could not find a valid encoder name")
 
-    encoder_name = parts[encoder_index+1:epoch_index]
+    encoder_name = parts[encoder_index + 1:epoch_index]
     return "_".join(encoder_name)
+
 
 def find_env():
     try:
@@ -26,17 +29,21 @@ def find_env():
     except ImportError:
         return "local"
 
+
 def inspect_object(obj):
     print(f"Inspecting object: {obj.__class__.__name__}")
     for attr, value in vars(obj).items():
         print(f"{attr}: {value}")
 
+
 def tqdm_print(*args, **kwargs):
     return tqdm(*args, file=sys.stdout, **kwargs)
+
 
 def print_indented(text, level=1):
     indent = "\t" * level
     print(indent + text)
+
 
 def load_env_variables():
     environment = find_env()
@@ -47,12 +54,24 @@ def load_env_variables():
     load_dotenv(dotenv_path=dotenv_path)
     return environment
 
+
 def find_configs():
     env = find_env()
     if env == "colab":
-        configs_file = "/content/master/colab_configs.yaml"
+        configs_file = "/content/drive/MyDrive/projects/master/colab_configs.yaml"
     else:
         configs_file = "local_configs.yaml"
     with open(configs_file, "r") as file:
         configs = yaml.safe_load(file)
     return configs
+
+
+def send_sms(message, sid, token, from_, to):
+    account_sid = sid
+    auth_token = token
+    client = Client(account_sid, auth_token)
+    message = client.messages.create(
+        from_=from_,
+        to=to,
+        body=message)
+    print(message.sid)

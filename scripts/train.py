@@ -1,6 +1,6 @@
 import os
 
-from src.utils import find_configs, load_env_variables
+from src.utils import find_configs, load_env_variables, send_sms
 
 env = load_env_variables()
 from src.datasets import Splitter, DatasetIterator, DatasetLoader
@@ -31,8 +31,6 @@ for config_name in configs.keys():
 
     # saving the config file
     config_save_name = f"{config_name}_{datetime.now(time_zone).strftime('%Y-%m-%d_%H-%M-%S')}"
-    with open(os.path.join(os.getenv("CHECKPOINTS_DIR"), config_save_name + ".yaml"), "w") as file:
-        yaml.dump(config, file)
 
     splitter_ = Splitter(**config["splitter"])
     train_iterator_ = DatasetIterator(**config["datasets"]["train"]["iterator"])
@@ -75,5 +73,21 @@ for config_name in configs.keys():
         device="cuda",
         **config["trainer"]
     )
-
     trainer_.train()
+
+    with open(os.path.join(os.getenv("CHECKPOINTS_DIR"), config_save_name + ".yaml"), "w") as file:
+        yaml.dump(config, file)
+
+    sms = f"""
+    Hey Boss,
+    Environment: {env}
+    Training done for {config_save_name}, checkpoints, logs and config files are saved in the output folders.
+    """
+
+    send_sms(
+        sid=os.getenv("TWILIO_SID"),
+        token=os.getenv("TWILIO_TOKEN"),
+        from_=os.getenv("TWILIO_FROM"),
+        to=os.getenv("TWILIO_TO"),
+        message=sms,
+    )

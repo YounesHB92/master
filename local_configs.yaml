@@ -3,7 +3,7 @@ config_2:
     task: "segmentation"
     test_val_ratio: 0.2
     classes_list: [ "background", "transverse", "longitudinal", "other" ]
-    force_directory: False
+    force_directory: True
 
   datasets:
     train:
@@ -28,7 +28,7 @@ config_2:
         report: True
 
   model:
-    model_name: "DeepLabV3Plus"
+    model_name: "Unet"
     encoder_name: "resnet34"
     encoder_weights: "imagenet"
 
