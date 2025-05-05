@@ -1,8 +1,8 @@
-config_2:
+config_1:
   splitter:
     task: "segmentation"
     test_val_ratio: 0.2
-    classes_list: [ "background", "transverse", "longitudinal", "other" ]
+    classes_list: [ "background", "crack" ]
     force_directory: True
 
   datasets:

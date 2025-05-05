@@ -53,7 +53,7 @@ def print_indented(text, level=1):
 def load_env_variables():
     environment = find_env()
     if environment == "colab":
-        base_path = "/content/master"
+        base_path = "/content/drive/MyDrive/projects/master"
     else:
         base_path = "/home/younes/Desktop/projects/master"
     dotenv_path = os.path.join(base_path, ".env." + environment)

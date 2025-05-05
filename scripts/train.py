@@ -11,7 +11,7 @@ print("Current working directory set to:", os.getcwd())
 
 from src.utils import find_configs, load_env_variables, send_sms
 
-env = load_env_variables()
+base_path, env = load_env_variables()
 from src.datasets import Splitter, DatasetIterator, DatasetLoader
 from src.training import Trainer, LossAndMetrics
 from src.models import LoadModel
