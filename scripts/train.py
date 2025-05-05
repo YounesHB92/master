@@ -1,4 +1,13 @@
 import os
+import sys
+from pathlib import Path
+
+# Set working directory to one level up from this file's location
+current_file_path = Path(__file__).resolve()
+project_root = current_file_path.parent.parent
+os.chdir(project_root)
+sys.path.insert(0, str(project_root))
+print("Current working directory set to:", os.getcwd())
 
 from src.utils import find_configs, load_env_variables, send_sms
 
@@ -11,13 +20,14 @@ import torch
 import warnings
 import yaml
 import pytz
+
 time_zone = pytz.timezone("Australia/Brisbane")
 
 warnings.filterwarnings("ignore")
 
 print("Loading environment variables for:", env)
 
-for dir_ in ["CHECKPOINTS_DIR", "LOGS_DIR"]: # make the output folders if they do not exist
+for dir_ in ["CHECKPOINTS_DIR", "LOGS_DIR"]:  # make the output folders if they do not exist
     os.makedirs(os.getenv(dir_), exist_ok=True)
 print("Output folders created.")
 

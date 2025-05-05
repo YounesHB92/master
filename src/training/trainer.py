@@ -1,5 +1,4 @@
 import torch
-from tqdm import tqdm
 import os
 from src.utils import load_env_variables
 from src.training import EpochRunner

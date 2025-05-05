@@ -1,7 +1,9 @@
-from tqdm import tqdm
+import os
 import sys
-from dotenv import load_dotenv
+
 import yaml
+from dotenv import load_dotenv
+from tqdm import tqdm
 from twilio.rest import Client
 
 
@@ -75,3 +77,24 @@ def send_sms(message, sid, token, from_, to):
         to=to,
         body=message)
     print(message.sid)
+
+
+def get_config_info(config_path):
+    config_name = os.path.basename(config_path)
+    config_dir = os.path.dirname(config_path)
+    # finding the respective model
+    model_path = None
+    for file in os.listdir(config_dir):
+        if file.endswith('.pt') and file.split(".")[0] == config_name.split(".")[0]:
+            print("Respective model found: ", file)
+            model_path = os.path.join(config_dir, file)
+
+    if model_path is None:
+        raise Exception("Respective model not found for config file: ", config_name)
+
+    # extracting date and time from the config name
+    config_name_pure = config_name.split(".")[0]
+    config_name_split = config_name_pure.split("_")
+    date = config_name_split[-2]
+    time = config_name_split[-1]
+    return model_path, date, time

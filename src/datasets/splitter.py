@@ -29,7 +29,7 @@ class Splitter:
     def analyze_classes(self):
         if "background" not in self.classes_list:
             raise ValueError("Background class is missing. Please include 'background' in the classes list.")
-        if len(self.classes_list) > 2 & len(self.classes_list) != 8: # because we have defined 7 crack types + 1 background
+        if len(self.classes_list) > 2 and len(self.classes_list) != 8: # because we have defined 7 crack types + 1 background
             if "other" not in self.classes_list:
                 raise ValueError("You are not gonna include all the types but other class is missing. Please include 'other' in the classes list. Otherwise, use all the classes.")
         self.classes = {
