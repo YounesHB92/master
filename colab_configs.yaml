@@ -1,4 +1,4 @@
-config_1:
+config_7:
   splitter:
     task: "segmentation"
     test_val_ratio: 0.2
@@ -9,7 +9,7 @@ config_1:
     train:
       iterator:
         set_name: "train"
-        patch_size: 128
+        patch_size: 1024
         augment: True
       loader:
         batch_size: 4
@@ -19,7 +19,7 @@ config_1:
     val:
       iterator:
         set_name: "val"
-        patch_size: 128
+        patch_size: 1024
         augment: False
       loader:
         batch_size: 4
@@ -35,92 +35,18 @@ config_1:
   trainer:
     epochs: 50
 
-config_2:
+config_8:
   splitter:
     task: "segmentation"
     test_val_ratio: 0.2
-    classes_list: [ "background", "crack"]
-    force_directory: False
-
-  datasets:
-    train:
-      iterator:
-        set_name: "train"
-        patch_size: 256
-        augment: True
-      loader:
-        batch_size: 4
-        shuffle: True
-        num_workers: 4
-        report: True
-    val:
-      iterator:
-        set_name: "val"
-        patch_size: 256
-        augment: False
-      loader:
-        batch_size: 4
-        shuffle: False
-        num_workers: 4
-        report: True
-
-  model:
-    model_name: "DeepLabV3Plus"
-    encoder_name: "resnet50"
-    encoder_weights: "imagenet"
-
-  trainer:
-    epochs: 50
-
-config_3:
-  splitter:
-    task: "segmentation"
-    test_val_ratio: 0.2
-    classes_list: [ "background", "crack"]
-    force_directory: False
-
-  datasets:
-    train:
-      iterator:
-        set_name: "train"
-        patch_size: 512
-        augment: True
-      loader:
-        batch_size: 4
-        shuffle: True
-        num_workers: 4
-        report: True
-    val:
-      iterator:
-        set_name: "val"
-        patch_size: 512
-        augment: False
-      loader:
-        batch_size: 4
-        shuffle: False
-        num_workers: 4
-        report: True
-
-  model:
-    model_name: "DeepLabV3Plus"
-    encoder_name: "resnet50"
-    encoder_weights: "imagenet"
-
-  trainer:
-    epochs: 50
-
-config_4:
-  splitter:
-    task: "segmentation"
-    test_val_ratio: 0.2
-    classes_list: [ "background", "transverse", "longitudinal", "diagonal", "other" ]
+    classes_list: [ "background", "transverse", "other"]
     force_directory: True
 
   datasets:
     train:
       iterator:
         set_name: "train"
-        patch_size: 256
+        patch_size: 1024
         augment: True
       loader:
         batch_size: 4
@@ -130,7 +56,7 @@ config_4:
     val:
       iterator:
         set_name: "val"
-        patch_size: 256
+        patch_size: 1024
         augment: False
       loader:
         batch_size: 4
@@ -146,18 +72,18 @@ config_4:
   trainer:
     epochs: 50
 
-config_5:
+config_9:
   splitter:
     task: "segmentation"
     test_val_ratio: 0.2
-    classes_list: [ "background", "block", "crocodile", "meandering", "crescent", "other"]
+    classes_list: [ "background", "transverse", "longitudinal", "other"]
     force_directory: True
 
   datasets:
     train:
       iterator:
         set_name: "train"
-        patch_size: 256
+        patch_size: 1024
         augment: True
       loader:
         batch_size: 4
@@ -167,7 +93,7 @@ config_5:
     val:
       iterator:
         set_name: "val"
-        patch_size: 256
+        patch_size: 1024
         augment: False
       loader:
         batch_size: 4
@@ -183,18 +109,18 @@ config_5:
   trainer:
     epochs: 50
 
-config_6:
+config_10:
   splitter:
     task: "segmentation"
     test_val_ratio: 0.2
-    classes_list: [ "background", "block", "crocodile", "meandering", "transverse", "longitudinal", "diagonal", "crescent"]
+    classes_list: [ "background", "transverse", "longitudinal", "diagonal", "other"]
     force_directory: True
 
   datasets:
     train:
       iterator:
         set_name: "train"
-        patch_size: 256
+        patch_size: 1024
         augment: True
       loader:
         batch_size: 4
@@ -204,7 +130,155 @@ config_6:
     val:
       iterator:
         set_name: "val"
-        patch_size: 256
+        patch_size: 1024
+        augment: False
+      loader:
+        batch_size: 4
+        shuffle: False
+        num_workers: 4
+        report: True
+
+  model:
+    model_name: "DeepLabV3Plus"
+    encoder_name: "resnet50"
+    encoder_weights: "imagenet"
+
+  trainer:
+    epochs: 50
+
+config_11:
+  splitter:
+    task: "segmentation"
+    test_val_ratio: 0.2
+    classes_list: [ "background", "transverse", "longitudinal", "diagonal", "meandering", "other"]
+    force_directory: True
+
+  datasets:
+    train:
+      iterator:
+        set_name: "train"
+        patch_size: 1024
+        augment: True
+      loader:
+        batch_size: 4
+        shuffle: True
+        num_workers: 4
+        report: True
+    val:
+      iterator:
+        set_name: "val"
+        patch_size: 1024
+        augment: False
+      loader:
+        batch_size: 4
+        shuffle: False
+        num_workers: 4
+        report: True
+
+  model:
+    model_name: "DeepLabV3Plus"
+    encoder_name: "resnet50"
+    encoder_weights: "imagenet"
+
+  trainer:
+    epochs: 50
+
+config_12:
+  splitter:
+    task: "segmentation"
+    test_val_ratio: 0.2
+    classes_list: [ "background", "transverse", "longitudinal", "diagonal", "meandering", "block", "other"]
+    force_directory: True
+
+  datasets:
+    train:
+      iterator:
+        set_name: "train"
+        patch_size: 1024
+        augment: True
+      loader:
+        batch_size: 4
+        shuffle: True
+        num_workers: 4
+        report: True
+    val:
+      iterator:
+        set_name: "val"
+        patch_size: 1024
+        augment: False
+      loader:
+        batch_size: 4
+        shuffle: False
+        num_workers: 4
+        report: True
+
+  model:
+    model_name: "DeepLabV3Plus"
+    encoder_name: "resnet50"
+    encoder_weights: "imagenet"
+
+  trainer:
+    epochs: 50
+
+config_13:
+  splitter:
+    task: "segmentation"
+    test_val_ratio: 0.2
+    classes_list: [ "background", "transverse", "longitudinal", "diagonal", "meandering", "block", "crocodile", "other"]
+    force_directory: True
+
+  datasets:
+    train:
+      iterator:
+        set_name: "train"
+        patch_size: 1024
+        augment: True
+      loader:
+        batch_size: 4
+        shuffle: True
+        num_workers: 4
+        report: True
+    val:
+      iterator:
+        set_name: "val"
+        patch_size: 1024
+        augment: False
+      loader:
+        batch_size: 4
+        shuffle: False
+        num_workers: 4
+        report: True
+
+  model:
+    model_name: "DeepLabV3Plus"
+    encoder_name: "resnet50"
+    encoder_weights: "imagenet"
+
+  trainer:
+    epochs: 50
+
+config_14:
+  splitter:
+    task: "segmentation"
+    test_val_ratio: 0.2
+    classes_list: [ "background", "transverse", "longitudinal", "diagonal", "meandering", "block", "crocodile", "crescent"]
+    force_directory: True
+
+  datasets:
+    train:
+      iterator:
+        set_name: "train"
+        patch_size: 1024
+        augment: True
+      loader:
+        batch_size: 4
+        shuffle: True
+        num_workers: 4
+        report: True
+    val:
+      iterator:
+        set_name: "val"
+        patch_size: 1024
         augment: False
       loader:
         batch_size: 4

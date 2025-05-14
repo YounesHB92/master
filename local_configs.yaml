@@ -9,7 +9,7 @@ config_1:
     train:
       iterator:
         set_name: "train"
-        patch_size: 128
+        patch_size: 1024
         augment: True
       loader:
         batch_size: 4
@@ -19,7 +19,7 @@ config_1:
     val:
       iterator:
         set_name: "val"
-        patch_size: 128
+        patch_size: 1024
         augment: False
       loader:
         batch_size: 4

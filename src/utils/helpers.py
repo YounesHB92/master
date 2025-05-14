@@ -66,7 +66,7 @@ def load_env_variables():
 def find_configs():
     env = find_env()
     if env == "colab":
-        configs_file = "/content/drive/MyDrive/projects/master/colab_configs.yaml"
+        configs_file = "/content/master/colab_configs.yaml"
     else:
         configs_file = "local_configs.yaml"
     with open(configs_file, "r") as file:

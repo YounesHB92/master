@@ -1,26 +1,58 @@
 import os
+
+import torch
+import yaml
+
+from src.datasets import DatasetLoader, DatasetIterator, Splitter
+from src.models import LoadModel
+from src.testing import Tester
+from src.training import LossAndMetrics
 from src.utils import load_env_variables
-import re
-load_env_variables()
+
+_ = load_env_variables()
 
 checkpoints_dir = os.getenv('CHECKPOINTS_DIR')
-configs_files = [file for file in os.listdir(checkpoints_dir) if file .endswith('.yaml')]
-configs_paths = [os.path.join(checkpoints_dir, file) for file in configs_files]
+models = [file for file in os.listdir(checkpoints_dir) if file.endswith(".pt")]
+print("Total models state dicts found: ", len(models))
 
-config_path = configs_paths[0]
+state_dict_path = os.path.join(checkpoints_dir, models[0])
 
-config_name = os.path.basename(config_path)
-config_dir = os.path.dirname(config_path)
-# finding the respective model
-for file in os.listdir(config_dir):
-    if file.endswith('.pt') and file.split(".")[0] == config_name.split(".")[0]:
-        print("Respective model found: ", file)
-        model_path = os.path.join(config_dir, file)
+config_path = state_dict_path.replace('.pt', '.yaml')
+with open(config_path, "r") as file:
+    config = yaml.safe_load(file)
 
-# extracting date and time from the config name
-config_name_pure = config_name.split(".")[0]
-config_name_split = config_name_pure.split("_")
-date = config_name_split[-2]
-print("Date found: ", date)
-time = config_name_split[-1]
-print("Time found: ", time)
+config["splitter"]["force_directory"] = False  #### temporary set to False
+
+splitter_ = Splitter(**config["splitter"])
+
+test_iterator_ = DatasetIterator(
+    set_name="test",
+    patch_size=config["datasets"]["val"]["iterator"]["patch_size"],
+    augment=False
+)
+
+test_loader_ = DatasetLoader(
+    dataset=test_iterator_,
+    classes=splitter_.classes,
+    **config["datasets"]["val"]["loader"]
+)
+test_loader = test_loader_.loader
+
+loss_and_metrics_ = LossAndMetrics(
+    num_classes=len(splitter_.classes)
+)
+
+model_loader_ = LoadModel(
+    num_classes=len(splitter_.classes),
+    **config["model"]
+)
+model = model_loader_.load_model()
+model.load_state_dict(torch.load(state_dict_path))
+
+tester_ = Tester(
+    model=model,
+    loss_metrics=loss_and_metrics_,
+    device="cuda",
+    test_loader=test_loader
+)
+tester_.test()
