@@ -91,7 +91,7 @@ class DatasetIterator(torch.utils.data.Dataset):
 
     def create_paths(self):
         images_dir = os.path.join(os.getenv("SPLIT_DATA_DIR"), self.set_name, "images")
-        masks_dir = os.path.join(os.getenv("SPLIT_DATA_DIR"), self.set_name, "masks")
+        masks_dir = os.path.join(os.getenv("SPLIT_DATA_DIR"), self.set_name, "seg_masks")
 
         images_files = sorted(os.listdir(images_dir))
         masks_files = sorted(os.listdir(masks_dir))

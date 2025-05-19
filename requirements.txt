@@ -1,3 +1,10 @@
 segmentation-models-pytorch
 python-dotenv
 twilio
+opencv-python
+scikit-image
+scikit-learn
+natsort
+pandas
+matplotlib
+seaborn

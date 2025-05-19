@@ -1,3 +1,3 @@
-from .dataset_iterator import *
-from .dataset_loader import *
-from .splitter import *
+from .splitter_core import *
+from .classification import *
+from .segmentation import *

@@ -1,7 +1,7 @@
 import torch
 import os
 from src.utils import load_env_variables
-from src.training import EpochRunner
+from src.training.segmentation import EpochRunner
 _ = load_env_variables()
 import csv
 

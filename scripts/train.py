@@ -12,7 +12,7 @@ print("Current working directory set to:", os.getcwd())
 from src.utils import find_configs, load_env_variables, send_sms
 
 base_path, env = load_env_variables()
-from src.datasets import Splitter, DatasetIterator, DatasetLoader
+from src.datasets import SegmentationSplitter, DatasetIterator, DatasetLoader
 from src.training import Trainer, LossAndMetrics
 from src.models import LoadModel
 from datetime import datetime
@@ -42,7 +42,7 @@ for config_name in configs.keys():
     # saving the config file
     config_save_name = f"{config_name}_{datetime.now(time_zone).strftime('%Y-%m-%d_%H-%M-%S')}"
 
-    splitter_ = Splitter(**config["splitter"])
+    splitter_ = SegmentationSplitter(**config["segmentation_splitter"])
     train_iterator_ = DatasetIterator(**config["datasets"]["train"]["iterator"])
     val_iterator_ = DatasetIterator(**config["datasets"]["val"]["iterator"])
 

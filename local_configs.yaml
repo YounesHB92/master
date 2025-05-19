@@ -1,15 +1,14 @@
 config_1:
-  splitter:
-    task: "segmentation"
+  segmentation_splitter:
     test_val_ratio: 0.2
-    classes_list: [ "background", "crack" ]
-    force_directory: True
+    force_directory: False
+    classes_list: [ "background", "transverse", "other" ]
 
   datasets:
     train:
       iterator:
         set_name: "train"
-        patch_size: 1024
+        patch_size: 256
         augment: True
       loader:
         batch_size: 4
@@ -19,7 +18,7 @@ config_1:
     val:
       iterator:
         set_name: "val"
-        patch_size: 1024
+        patch_size: 256
         augment: False
       loader:
         batch_size: 4

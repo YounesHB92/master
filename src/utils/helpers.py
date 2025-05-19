@@ -8,6 +8,8 @@ from tqdm import tqdm
 from twilio.rest import Client
 import matplotlib.pyplot as plt
 import seaborn as sns
+from PIL import Image
+import numpy as np
 
 
 def find_encoder_name(model_name):
@@ -153,3 +155,24 @@ def plot_log_info(config_info):
     sns.lineplot(data=log_file, x="epoch", y="val_mean_dice", ax=ax[2], label="val_mean_dice")
     ax[2].set_title(f"Mean Dice, model: {train_model}, encoder: {encoder}, classes: ({classes}), patch_size: {patch_size}")
     return fig, ax
+
+def rebuild_mask(mask_file, classes_list, classes_dict, crack_types):
+    # load_mask
+    raw_masks_path = os.path.join(os.getenv("RAW_DATA_DIR"), "masks")
+    mask_path = os.path.join(raw_masks_path, mask_file)
+    mask = Image.open(mask_path).convert("L")
+    mask = np.array(mask)
+    rebuilt_mask = np.zeros_like(mask, dtype=np.uint8)
+    if len(classes_list) == 2:
+        rebuilt_mask[mask != 0] = 1
+        return rebuilt_mask.astype("uint8")
+    else:
+        index_ = crack_types[crack_types["image"] == mask_file].index
+        crack_type = crack_types.loc[index_, "type"].values[0]
+        if crack_type not in classes_dict.keys():
+            crack_type = "other"
+        rebuilt_mask[mask != 0] = classes_dict[crack_type]
+        return rebuilt_mask.astype("uint8")
+
+def save_rebuilt_mask(rebuilt_mask, path):
+    Image.fromarray(rebuilt_mask).save(path)
