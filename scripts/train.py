@@ -14,7 +14,7 @@ from src.utils import find_configs, load_env_variables, send_sms
 base_path, env = load_env_variables()
 from src.datasets import SegmentationSplitter, DatasetIterator, DatasetLoader
 from src.training import Trainer, LossAndMetrics
-from src.models import LoadModel
+from src.models import LoadModels
 from datetime import datetime
 import torch
 import warnings
@@ -60,7 +60,7 @@ for config_name in configs.keys():
     )
     val_loader = val_loader_.loader
 
-    model_loader_ = LoadModel(
+    model_loader_ = LoadModels(
         model_name=config["model"]["model_name"],
         encoder_name=config["model"]["encoder_name"],
         encoder_weights=config["model"]["encoder_weights"],

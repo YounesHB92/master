@@ -5,7 +5,7 @@ from skimage.measure import regionprops_table
 from tqdm import tqdm
 
 from src.utils import load_env_variables
-from .feature_core import FeatureCore
+from src.datasets.feature_core import FeatureCore
 
 _ = load_env_variables()
 
@@ -17,7 +17,7 @@ class FeatureExtractor(FeatureCore):
         self.features = None
 
     def extract_features(self, mask_path):
-        mask = self.load_mask(mask_path)
+        mask = self._load_mask(mask_path)
         region_table = regionprops_table(mask, properties=self.features_list)
         return region_table
 

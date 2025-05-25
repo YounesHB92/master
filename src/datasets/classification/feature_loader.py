@@ -1,28 +1,35 @@
 import os
-import pandas as pd
 from random import randint
+
 import cv2 as cv
 import matplotlib.pyplot as plt
+import pandas as pd
 from matplotlib import patches
 
+from src.datasets import SplitterCore
 from src.utils import load_env_variables, print_indented
+
 _ = load_env_variables()
 
 
-class FeatureLoader:
-    def __init__(self, features_file):
+class FeatureLoader(SplitterCore):
+    def __init__(self, features_file, test_val_ratio=0.2, force_directory=False, random_state=42, *args, **kwargs):
+        super().__init__(test_val_ratio, force_directory, random_state, *args, **kwargs)
         self.features_path = os.getenv("FEATURES_DIR")
         self.features_file = features_file
         self.features_df = self.load_features()
         self.classes_df = self.load_classes()
         self.do_the_checks()
 
+        self.features = None
+        self.run()
+
     def load_features(self):
         features_path = os.path.join(self.features_path, self.features_file)
         if not os.path.exists(features_path):
             raise FileNotFoundError(f"Features file not found: {features_path}")
         features = pd.read_csv(features_path)
-        print("Features loaded from: {}".format(self.features_file))
+        print("\nFeatures loaded from: {}".format(self.features_file))
         print_indented("Number of features: {}".format(len(features.columns)), level=1)
         print_indented("Number of samples: {}".format(len(features)), level=1)
         return features
@@ -36,7 +43,7 @@ class FeatureLoader:
         # temporary drop complexity and causes
         classes.drop(["complexity", "causes"], axis=1, inplace=True)
 
-        print("Classes loaded from: {}".format(os.path.basename(classes_path)))
+        print("\nClasses loaded from: {}".format(os.path.basename(classes_path)))
         print_indented("Number of columns: {}".format(len(classes.columns)), level=1)
         print_indented("Number of rows: {}".format(len(classes.index)), level=1)
         return classes
@@ -48,7 +55,7 @@ class FeatureLoader:
     def analyze_one_sample(self, plot=False):
         rand_index = randint(0, len(self.features_df) - 1)
         image_file = self.features_df.loc[rand_index, "image"]
-        print("Analyzing sample: {}".format(image_file))
+        print("\nAnalyzing sample: {}".format(image_file))
 
         class_index = self.classes_df[self.classes_df["image"] == image_file].index
         class_ = self.classes_df.loc[class_index, "type"].values[0]
@@ -62,7 +69,7 @@ class FeatureLoader:
             "bbox-1",
             "bbox-2",
             "bbox-3",
-        ] # [min_row, min_col, max_row, max_col]
+        ]  # [min_row, min_col, max_row, max_col]
         coords = self.features_df.loc[rand_index, box_coords].values
         min_row, min_col, max_row, max_col = coords
         width = max_col - min_col
@@ -87,6 +94,46 @@ class FeatureLoader:
             plt.title(title)
             plt.show()
 
+    def find_set(self, x, train_list, val_list, test_list):
+        if x in train_list:
+            return "train"
+        elif x in val_list:
+            return "val"
+        elif x in test_list:
+            return "test"
+        else:
+            return None
 
+    def run(self):
+        if self.sets is None:
+            raise Exception("Something went wrong.")
 
+        train_list = self.sets["train"]["masks"]
+        val_list = self.sets["val"]["masks"]
+        test_list = self.sets["test"]["masks"]
 
+        self.features_df["set"] = self.features_df["image"].apply(
+            lambda x: self.find_set(x, train_list, val_list, test_list))
+        self.classes_df["set"] = self.features_df["image"].apply(
+            lambda x: self.find_set(x, train_list, val_list, test_list))
+
+        x_train = self.features_df.loc[self.features_df["set"] == "train"]
+        x_val = self.features_df.loc[self.features_df["set"] == "val"]
+        x_test = self.features_df.loc[self.features_df["set"] == "test"]
+
+        y_train = self.classes_df.loc[self.classes_df["set"] == "train"]
+        y_val = self.classes_df.loc[self.classes_df["set"] == "val"]
+        y_test = self.classes_df.loc[self.classes_df["set"] == "test"]
+
+        self.features = {
+            "x_train": x_train,
+            "y_train": y_train,
+            "x_val": x_val,
+            "y_val": y_val,
+            "x_test": x_test,
+            "y_test": y_test,
+        }
+        print("\nFeatures are loaded successfully.")
+        print_indented("self.features to be used.", level=1)
+
+        return x_train, x_val, x_test, y_train, y_val, y_test

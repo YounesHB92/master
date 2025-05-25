@@ -2,11 +2,10 @@ import os
 import shutil
 
 import pandas as pd
-from src.datasets import SplitterCore
-from src.utils import load_env_variables, rebuild_mask, save_rebuilt_mask
-import src.utils as utils
+from .. import SplitterCore
+from src.utils import general, image, env_config
 
-_ = load_env_variables()
+_ = env_config.load_env_variables()
 
 
 class SegmentationSplitter(SplitterCore):
@@ -47,15 +46,15 @@ class SegmentationSplitter(SplitterCore):
             path = os.path.join(set_path, dir_name)
             self.handle_path(path)
             mask_files = self.sets[set_name]["masks"]
-            for mask_file in utils.tqdm_print(mask_files, desc=f"Rebuilding masks for set {set_name}", total=len(mask_files)):
-                rebuilt_mask = rebuild_mask(
+            for mask_file in general.tqdm_print(mask_files, desc=f"Rebuilding masks for set {set_name}", total=len(mask_files)):
+                rebuilt_mask = image.rebuild_mask(
                     mask_file=mask_file,
                     classes_list=self.classes_list,
                     classes_dict=self.classes,
                     crack_types=self.crack_types
                 )
                 saving_path = os.path.join(set_path, dir_name, mask_file)
-                save_rebuilt_mask(rebuilt_mask, saving_path)
+                image.save_rebuilt_mask(rebuilt_mask, saving_path)
 
     def handle_path(self, path):
         if os.path.exists(path):

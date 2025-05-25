@@ -10,7 +10,7 @@ from sklearn.model_selection import train_test_split
 
 
 class SplitterCore:
-    def __init__(self, test_val_ratio, force_directory, random_state=42):
+    def __init__(self, test_val_ratio, force_directory, random_state=42, *args, **kwargs):
         self.test_val_ratio = test_val_ratio
         self.force_directory = force_directory
         self.random_state = random_state
@@ -22,6 +22,8 @@ class SplitterCore:
 
         self.sets = None
         self._run()
+
+        super().__init__(*args, **kwargs)
 
     def _check_raw_files(self):
         images_raw_path = os.path.join(os.getenv("RAW_DATA_DIR"), "images")
@@ -55,7 +57,7 @@ class SplitterCore:
         self._train_val_test_split(mode=mode)
 
     def _copy_images_masks(self, set_name, set_data):
-        print("Copying images and masks for set: ", set_name)
+        print("\nCopying images and masks for set: ", set_name)
         for image_file in utils.tqdm_print(set_data["images"], desc="Copying images", total=len(set_data["images"])):
             source_path = os.path.join(self.raw_images_path, image_file)
             destination_path = os.path.join(os.getenv("SPLIT_DATA_DIR"), set_name, "images", image_file)
