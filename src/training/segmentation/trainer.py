@@ -5,7 +5,7 @@ from src.training.segmentation import EpochRunner
 _ = load_env_variables()
 import csv
 
-class Trainer(EpochRunner):
+class SegmentationTrainer(EpochRunner):
     def __init__(self, model, loss_metrics, device, train_loader, optimizer, val_loader, epochs, config_name):
         super().__init__(model, loss_metrics, device)
         self.train_loader = train_loader

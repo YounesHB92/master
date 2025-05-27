@@ -1,3 +1,3 @@
-from .dataset_iterator import DatasetIterator
-from .dataset_loader import DatasetLoader
-from .segmentation_splitter import SegmentationSplitter
+from .dataset_iterator import SegmentationIterator
+from .dataset_loader import SegmentationDatasetLoader
+from .splitter import SegmentationSplitter

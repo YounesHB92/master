@@ -9,7 +9,13 @@ import numpy as np
 _ = load_env_variables()
 
 
-class DatasetIterator(torch.utils.data.Dataset):
+class SegmentationIterator(torch.utils.data.Dataset):
+    """
+    Args:
+        set_name: which is the name of the set
+        patch_size: patch size
+        augment: keep it true for train and false for val, and test
+    """
     def __init__(self, set_name, patch_size, augment=True):
         self.set_name = set_name
         self.create_paths()

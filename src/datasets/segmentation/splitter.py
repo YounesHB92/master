@@ -9,9 +9,9 @@ _ = env_config.load_env_variables()
 
 
 class SegmentationSplitter(SplitterCore):
-    def __init__(self, test_val_ratio, force_directory, classes_list, random_state=42):
-        super().__init__(test_val_ratio, force_directory, random_state)
-        self.force_directory = force_directory
+    def __init__(self, test_val_ratio, force_dir, classes_list, random_state=42):
+        super().__init__(test_val_ratio, force_dir, random_state)
+        self.force_directory = force_dir
         self.classes_list = classes_list
         self.classes = None
         self.analyze_classes()

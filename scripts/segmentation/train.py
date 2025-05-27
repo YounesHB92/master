@@ -12,9 +12,9 @@ print("Current working directory set to:", os.getcwd())
 from src.utils import find_configs, load_env_variables, send_sms
 
 base_path, env = load_env_variables()
-from src.datasets import SegmentationSplitter, DatasetIterator, DatasetLoader
-from src.training import Trainer, LossAndMetrics
-from src.models import LoadModels
+from src.datasets import SegmentationSplitter, SegmentationIterator, SegmentationDatasetLoader
+from src.training import SegmentationTrainer, SegmentationLossAndMetrics
+from src.models import SegmentationModel
 from datetime import datetime
 import torch
 import warnings
@@ -43,24 +43,24 @@ for config_name in configs.keys():
     config_save_name = f"{config_name}_{datetime.now(time_zone).strftime('%Y-%m-%d_%H-%M-%S')}"
 
     splitter_ = SegmentationSplitter(**config["segmentation_splitter"])
-    train_iterator_ = DatasetIterator(**config["datasets"]["train"]["iterator"])
-    val_iterator_ = DatasetIterator(**config["datasets"]["val"]["iterator"])
+    train_iterator_ = SegmentationIterator(**config["datasets"]["train"]["iterator"])
+    val_iterator_ = SegmentationIterator(**config["datasets"]["val"]["iterator"])
 
-    train_loader_ = DatasetLoader(
+    train_loader_ = SegmentationDatasetLoader(
         dataset=train_iterator_,
         classes=splitter_.classes,
         **config["datasets"]["train"]["loader"]
     )
     train_loader = train_loader_.loader
 
-    val_loader_ = DatasetLoader(
+    val_loader_ = SegmentationDatasetLoader(
         dataset=val_iterator_,
         classes=splitter_.classes,
         **config["datasets"]["val"]["loader"]
     )
     val_loader = val_loader_.loader
 
-    model_loader_ = LoadModels(
+    model_loader_ = SegmentationModel(
         model_name=config["model"]["model_name"],
         encoder_name=config["model"]["encoder_name"],
         encoder_weights=config["model"]["encoder_weights"],
@@ -70,10 +70,10 @@ for config_name in configs.keys():
     model = model_loader_.load_model()
     print("Model loaded successfully.")
 
-    loss_and_metrics_ = LossAndMetrics(num_classes=len(splitter_.classes))
+    loss_and_metrics_ = SegmentationLossAndMetrics(num_classes=len(splitter_.classes))
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
 
-    trainer_ = Trainer(
+    trainer_ = SegmentationTrainer(
         model=model,
         optimizer=optimizer,
         loss_metrics=loss_and_metrics_,

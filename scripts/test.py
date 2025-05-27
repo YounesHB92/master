@@ -1,8 +1,15 @@
-from src.training.classification import Trainer as ClassificationTrainer
+from src.datasets import CnnDatasetIterator, CnnDatasetLoader
 
-class_trainer = ClassificationTrainer(
-    features_file = "features_clean.csv"
+iterator_ = CnnDatasetIterator(
+    set_name="train",
+    patch_size=256,
+    augment=True
 )
 
-results = class_trainer.train()
-class_trainer.report(results)
+loader_ = CnnDatasetLoader(
+    dataset=iterator_,
+    batch_size=8,
+    shuffle=True,
+    num_workers=4,
+    report=True
+)

@@ -10,9 +10,9 @@ from sklearn.model_selection import train_test_split
 
 
 class SplitterCore:
-    def __init__(self, test_val_ratio, force_directory, random_state=42, *args, **kwargs):
+    def __init__(self, test_val_ratio, force_dir, random_state=42, *args, **kwargs):
         self.test_val_ratio = test_val_ratio
-        self.force_directory = force_directory
+        self.force_dir = force_dir
         self.random_state = random_state
 
         self.set_names = ["train", "val", "test"]
@@ -46,12 +46,12 @@ class SplitterCore:
             print_indented("Split directory is empty. Creating new directory.", level=1)
             mode = "fresh"
         elif len(os.listdir(splits_dir)) > 0:
-            print_indented(f"Split directories are there. Force Directory -> {self.force_directory}", level=1)
-            if self.force_directory:
+            print_indented(f"Split directories are there. Force Directory -> {self.force_dir}", level=1)
+            if self.force_dir:
                 self._delete_sets_dirs()
                 print_indented("Split dirs are removed", level=2)
                 mode = "fresh"
-            elif not self.force_directory:
+            elif not self.force_dir:
                 print_indented("Train, val, test will be fetched from current directory.", level=2)
                 mode="read_existing"
         self._train_val_test_split(mode=mode)

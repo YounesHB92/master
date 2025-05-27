@@ -6,19 +6,20 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from matplotlib import patches
 
+from src.utils import general
 from src.datasets import SplitterCore
-from src.utils import load_env_variables, print_indented
+from src.utils import load_env_variables, print_indented, find_set
 
 _ = load_env_variables()
 
 
 class FeatureLoader(SplitterCore):
-    def __init__(self, features_file, test_val_ratio=0.2, force_directory=False, random_state=42, *args, **kwargs):
-        super().__init__(test_val_ratio, force_directory, random_state, *args, **kwargs)
+    def __init__(self, features_file, test_val_ratio=0.2, force_dir=False, random_state=42, *args, **kwargs):
+        super().__init__(test_val_ratio, force_dir, random_state, *args, **kwargs)
         self.features_path = os.getenv("FEATURES_DIR")
         self.features_file = features_file
         self.features_df = self.load_features()
-        self.classes_df = self.load_classes()
+        self.classes_df = general.load_classes()
         self.do_the_checks()
 
         self.features = None
@@ -33,20 +34,6 @@ class FeatureLoader(SplitterCore):
         print_indented("Number of features: {}".format(len(features.columns)), level=1)
         print_indented("Number of samples: {}".format(len(features)), level=1)
         return features
-
-    def load_classes(self):
-        classes_path = os.path.join(os.getenv("RAW_DATA_DIR"), "classes", "crack_types.csv")
-        if not os.path.exists(classes_path):
-            raise FileNotFoundError(f"Classes file not found: {classes_path}")
-        classes = pd.read_csv(classes_path)
-
-        # temporary drop complexity and causes
-        classes.drop(["complexity", "causes"], axis=1, inplace=True)
-
-        print("\nClasses loaded from: {}".format(os.path.basename(classes_path)))
-        print_indented("Number of columns: {}".format(len(classes.columns)), level=1)
-        print_indented("Number of rows: {}".format(len(classes.index)), level=1)
-        return classes
 
     def do_the_checks(self):
         if len(self.features_df) != len(self.classes_df):
@@ -94,28 +81,12 @@ class FeatureLoader(SplitterCore):
             plt.title(title)
             plt.show()
 
-    def find_set(self, x, train_list, val_list, test_list):
-        if x in train_list:
-            return "train"
-        elif x in val_list:
-            return "val"
-        elif x in test_list:
-            return "test"
-        else:
-            return None
-
     def run(self):
         if self.sets is None:
             raise Exception("Something went wrong.")
 
-        train_list = self.sets["train"]["masks"]
-        val_list = self.sets["val"]["masks"]
-        test_list = self.sets["test"]["masks"]
-
-        self.features_df["set"] = self.features_df["image"].apply(
-            lambda x: self.find_set(x, train_list, val_list, test_list))
-        self.classes_df["set"] = self.features_df["image"].apply(
-            lambda x: self.find_set(x, train_list, val_list, test_list))
+        self.features_df = general.add_set_column(self.features_df, self.sets)
+        self.classes_df = general.add_set_column(self.classes_df, self.sets)
 
         x_train = self.features_df.loc[self.features_df["set"] == "train"]
         x_val = self.features_df.loc[self.features_df["set"] == "val"]

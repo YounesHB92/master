@@ -1,7 +1,7 @@
 import segmentation_models_pytorch as smp
 from torch import nn
 
-class LossAndMetrics:
+class SegmentationLossAndMetrics:
     def __init__(self, num_classes):
         self.num_classes = num_classes
         self.dice_loss_fn = smp.losses.DiceLoss(mode="multiclass")

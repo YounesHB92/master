@@ -1,7 +1,7 @@
 import segmentation_models_pytorch as smp
 
 
-class LoadModel:
+class SegmentationModel:
     def __init__(self, model_name, encoder_name, encoder_weights, num_classes, activation=None):
         self.model_name = model_name
         self.encoder_name = encoder_name

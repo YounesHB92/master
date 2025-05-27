@@ -5,10 +5,21 @@ import torch
 from src.utils import print_indented
 
 
-class SegmentationDatasetLoader:
-    def __init__(self, dataset, classes, batch_size, shuffle=True, num_workers=4, report=True):
+class CnnDatasetLoader:
+    """
+    CNN Dataset Loader
+    Args:
+        dataset: the dataset iterator object
+        batch_size: the batch size
+        shuffle: whether to shuffle the dataset or not
+        num_workers: the number of workers
+        report: if you would like to double-check the loadings
+    Attributes:
+        loader: is the dataloader object to path to trainer
+    """
+    def __init__(self, dataset, batch_size, shuffle=True, num_workers=4, report=True):
         self.dataset = dataset
-        self.classes = classes
+        self.classes = self.dataset.class_to_idx
         self.batch_size = batch_size
         self.shuffle = shuffle
         self.num_workers = num_workers
@@ -41,17 +52,8 @@ class SegmentationDatasetLoader:
         idx = torch.randint(0, len(self.dataset.images_paths), (1,)).item()
         sample = self.dataset[idx]
 
-        # handle different types of datasets
-        if isinstance(sample, tuple) and len(sample) >= 2:
-            image, mask = sample[0], sample[1]
-            idx = mask[mask!=0].reshape(-1).tolist()[0]
-            print_indented(f"Chosen sample type: {list(self.classes.keys())[idx]}")
-            print_indented(f"Image shape: {image.shape}")
-            print_indented(f"Mask shape: {mask.shape}")
-
-        if hasattr(self.dataset, 'images_paths') and hasattr(self.dataset, 'masks_paths'):
-            image_file = os.path.basename(self.dataset.images_paths[idx])
-            mask_file = os.path.basename(self.dataset.masks_paths[idx])
-            print_indented(f"Image file: {image_file}")
-            print_indented(f"Mask file: {mask_file}")
+        image, label = sample[0], sample[1]
+        print_indented(f"Chosen sample type: {list(self.classes.keys())[label]}")
+        print_indented(f"Image file: {self.dataset.images_paths[idx]}")
+        print_indented(f"Mask shape: {image.shape}")
         print("-" * 50)
