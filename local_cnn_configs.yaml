@@ -1,0 +1,33 @@
+config_1:
+  cnn_splitter:
+    test_val_ratio: 0.2
+    force_dir: False
+    force_subdir: False
+
+  datasets:
+    train:
+      iterator:
+        set_name: "train"
+        patch_size: 256
+        augment: True
+      loader:
+        batch_size: 4
+        shuffle: True
+        num_workers: 4
+        report: True
+    val:
+      iterator:
+        set_name: "val"
+        patch_size: 256
+        augment: False
+      loader:
+        batch_size: 4
+        shuffle: False
+        num_workers: 4
+        report: True
+
+  model:
+    encoder_name: "resnet34"
+
+  trainer:
+    epochs: 2

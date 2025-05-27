@@ -31,7 +31,7 @@ for dir_ in ["CHECKPOINTS_DIR", "LOGS_DIR"]:  # make the output folders if they 
     os.makedirs(os.getenv(dir_), exist_ok=True)
 print("Output folders created.")
 
-configs = find_configs()
+configs = find_configs(mode="segmentation")
 print("Number of configurations found: ", len(configs.keys()))
 
 for config_name in configs.keys():
