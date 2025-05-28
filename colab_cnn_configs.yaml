@@ -8,7 +8,7 @@ config_1:
     train:
       iterator:
         set_name: "train"
-        patch_size: 512
+        patch_size: 1024
         augment: True
       loader:
         batch_size: 4
@@ -18,7 +18,7 @@ config_1:
     val:
       iterator:
         set_name: "val"
-        patch_size: 512
+        patch_size: 1024
         augment: False
       loader:
         batch_size: 4
@@ -42,7 +42,7 @@ config_2:
     train:
       iterator:
         set_name: "train"
-        patch_size: 512
+        patch_size: 1024
         augment: True
       loader:
         batch_size: 4
@@ -52,7 +52,7 @@ config_2:
     val:
       iterator:
         set_name: "val"
-        patch_size: 512
+        patch_size: 1024
         augment: False
       loader:
         batch_size: 4
@@ -76,7 +76,7 @@ config_3:
     train:
       iterator:
         set_name: "train"
-        patch_size: 512
+        patch_size: 1024
         augment: True
       loader:
         batch_size: 4
@@ -86,7 +86,7 @@ config_3:
     val:
       iterator:
         set_name: "val"
-        patch_size: 512
+        patch_size: 1024
         augment: False
       loader:
         batch_size: 4
@@ -95,7 +95,7 @@ config_3:
         report: True
 
   model:
-    encoder_name: "seresnext50_32x4d"
+    encoder_name: "resnext50_32x4d"
 
   trainer:
     epochs: 50
@@ -110,7 +110,7 @@ config_4:
     train:
       iterator:
         set_name: "train"
-        patch_size: 512
+        patch_size: 1024
         augment: True
       loader:
         batch_size: 4
@@ -120,7 +120,7 @@ config_4:
     val:
       iterator:
         set_name: "val"
-        patch_size: 512
+        patch_size: 1024
         augment: False
       loader:
         batch_size: 4
@@ -144,7 +144,7 @@ config_5:
     train:
       iterator:
         set_name: "train"
-        patch_size: 512
+        patch_size: 1024
         augment: True
       loader:
         batch_size: 4
@@ -154,7 +154,7 @@ config_5:
     val:
       iterator:
         set_name: "val"
-        patch_size: 512
+        patch_size: 1024
         augment: False
       loader:
         batch_size: 4
@@ -178,7 +178,7 @@ config_6:
     train:
       iterator:
         set_name: "train"
-        patch_size: 512
+        patch_size: 1024
         augment: True
       loader:
         batch_size: 4
@@ -188,7 +188,7 @@ config_6:
     val:
       iterator:
         set_name: "val"
-        patch_size: 512
+        patch_size: 1024
         augment: False
       loader:
         batch_size: 4
@@ -212,7 +212,7 @@ config_7:
     train:
       iterator:
         set_name: "train"
-        patch_size: 512
+        patch_size: 1024
         augment: True
       loader:
         batch_size: 4
@@ -222,7 +222,7 @@ config_7:
     val:
       iterator:
         set_name: "val"
-        patch_size: 512
+        patch_size: 1024
         augment: False
       loader:
         batch_size: 4

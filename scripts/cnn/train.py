@@ -54,13 +54,11 @@ for config_name in configs.keys():
         dataset=train_iterator_,
         **config["datasets"]["train"]["loader"]
     )
-    train_loader = train_dataset_.loader
 
     val_dataset_ = CnnDatasetLoader(
         dataset=val_iterator_,
         **config["datasets"]["val"]["loader"]
     )
-    val_loader = val_dataset_.loader
 
     model_ = CnnModel(
         encoder_name=config["model"]["encoder_name"],
@@ -73,8 +71,8 @@ for config_name in configs.keys():
 
     trainer_ = CnnTrainer(
         model=model_,
-        train_dataset=train_loader,
-        val_dataset=val_loader,
+        train_dataset=train_dataset_,
+        val_dataset=val_dataset_,
         loss_and_metrics=loss_and_metrics_,
         config_name=config_save_name,
         **config["trainer"]

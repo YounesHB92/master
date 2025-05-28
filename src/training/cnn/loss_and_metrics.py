@@ -1,7 +1,6 @@
 import torch.nn as nn
 import numpy as np
 
-
 class CnnLossAndMetrics:
     def __init__(self, num_classes):
         self.num_classes = num_classes
@@ -12,7 +11,7 @@ class CnnLossAndMetrics:
 
     def compute_metrics(self, preds, targets):
         """
-        Computes TP, FP, FN, TN, precision, recall, F1 for each class.
+        Computes TP, FP, FN, TN, precision, recall, F1, accuracy for each class.
 
         Args:
             preds (Tensor): shape [B, C]
@@ -34,6 +33,7 @@ class CnnLossAndMetrics:
             precision = tp / (tp + fp + 1e-7)
             recall = tp / (tp + fn + 1e-7)
             f1 = (2 * precision * recall) / (precision + recall + 1e-7)
+            accuracy = (tp + tn) / (tp + tn + fp + fn + 1e-7)
 
             metrics[cls] = {
                 "TP": int(tp),
@@ -42,26 +42,27 @@ class CnnLossAndMetrics:
                 "TN": int(tn),
                 "Precision": round(precision, 4),
                 "Recall": round(recall, 4),
-                "F1-Score": round(f1, 4)
+                "F1-Score": round(f1, 4),
+                "Accuracy": round(accuracy, 4)
             }
 
         return metrics
 
     def compute_average_metrics(self, metrics_dict):
         """
-        Computes the macro average of all numeric metrics across all classes.
+        Computes macro average of all metrics.
 
         Args:
             metrics_dict (dict): Output from compute_metrics()
 
         Returns:
-            avg_metrics (dict): {metric_name: average_value}
+            avg_metrics (dict): {avg_metric_name: value}
         """
-        keys = ["TP", "FP", "FN", "TN", "Precision", "Recall", "F1-Score"]
+        keys = ["TP", "FP", "FN", "TN", "Precision", "Recall", "F1-Score", "Accuracy"]
         avg_metrics = {}
 
         for key in keys:
-            values = [metrics_dict[cls][key] for cls in metrics_dict]
+            values = [metrics_dict[cls][key] for cls in metrics_dict.keys()]
             avg_metrics[f"avg_{key}"] = round(np.mean(values), 4)
 
         return avg_metrics

@@ -17,9 +17,11 @@ class CnnDatasetLoader:
     Attributes:
         loader: is the dataloader object to path to trainer
     """
+
     def __init__(self, dataset, batch_size, shuffle=True, num_workers=4, report=True):
         self.dataset = dataset
-        self.classes = self.dataset.class_to_idx
+        self.class_to_idx = self.dataset.class_to_idx
+        self.class_names = list(dataset.class_to_idx.keys())
         self.batch_size = batch_size
         self.shuffle = shuffle
         self.num_workers = num_workers
@@ -53,7 +55,7 @@ class CnnDatasetLoader:
         sample = self.dataset[idx]
 
         image, label = sample[0], sample[1]
-        print_indented(f"Chosen sample type: {list(self.classes.keys())[label]}")
+        print_indented(f"Chosen sample type: {list(self.class_to_idx.keys())[label]}")
         print_indented(f"Image file: {self.dataset.images_paths[idx]}")
         print_indented(f"Mask shape: {image.shape}")
         print("-" * 50)

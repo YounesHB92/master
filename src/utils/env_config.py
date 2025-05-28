@@ -37,7 +37,7 @@ def find_configs(mode):
     return configs
 
 
-def get_config_info(config_path):
+def get_config_info(config_path, mode):
     config_name = os.path.basename(config_path)
     config_dir = os.path.dirname(config_path)
     # finding the respective model
@@ -56,17 +56,21 @@ def get_config_info(config_path):
     time = config_name_split[-1]
 
     # load log files
-    experiments_path = os.path.dirname(os.path.dirname(config_path))
-    logs_path = os.path.join(experiments_path, "logs")
+    experiments_path = os.path.dirname(os.path.dirname(os.path.dirname(config_path)))
+    logs_path = os.path.join(experiments_path, "logs", mode)
     log_file_name = config_name.replace(".yaml", ".csv")
     logs = pd.read_csv(os.path.join(logs_path, log_file_name))
 
     # load config file itself
     with open(config_path, "r") as file:
         config = yaml.safe_load(file)
-    classes = config["splitter"]["classes_list"]
+    if mode == "segmentation":
+        classes = config["splitter"]["classes_list"]
+        trained_model = config["model"]["model_name"]
+    else:
+        classes = None
+        trained_model = None
     patch_size = config["datasets"]["train"]["iterator"]["patch_size"]
-    trained_model = config["model"]["model_name"]
     encoder = config["model"]["encoder_name"]
 
     config_info = {

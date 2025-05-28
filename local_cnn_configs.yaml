@@ -1,8 +1,8 @@
 config_1:
   cnn_splitter:
     test_val_ratio: 0.2
-    force_dir: False
-    force_subdir: False
+    force_dir: True
+    force_subdir: True
 
   datasets:
     train:
@@ -27,7 +27,7 @@ config_1:
         report: True
 
   model:
-    encoder_name: "resnet34"
+    encoder_name: "resnet101"
 
   trainer:
-    epochs: 2
+    epochs: 1

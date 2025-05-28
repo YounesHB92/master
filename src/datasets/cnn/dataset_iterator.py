@@ -20,6 +20,10 @@ class CnnDatasetIterator(torch.utils.data.Dataset):
         set_name (str): 'train', 'val', or 'test'
         patch_size (int): Size to which each image is resized
         augment (bool): Whether to apply augmentation
+    Attributes:
+        class_to_idx (dict): Dictionary mapping class name to index
+        images_paths (list): List of paths to images
+        classes_list (list): List of classes
     """
     def __init__(self, set_name, patch_size, augment=True):
         self.set_name = set_name
