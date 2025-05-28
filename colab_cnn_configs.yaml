@@ -1,0 +1,237 @@
+config_1:
+  cnn_splitter:
+    test_val_ratio: 0.2
+    force_dir: True
+    force_subdir: True
+
+  datasets:
+    train:
+      iterator:
+        set_name: "train"
+        patch_size: 512
+        augment: True
+      loader:
+        batch_size: 4
+        shuffle: True
+        num_workers: 4
+        report: True
+    val:
+      iterator:
+        set_name: "val"
+        patch_size: 512
+        augment: False
+      loader:
+        batch_size: 4
+        shuffle: False
+        num_workers: 4
+        report: True
+
+  model:
+    encoder_name: "resnet50"
+
+  trainer:
+    epochs: 50
+
+config_2:
+  cnn_splitter:
+    test_val_ratio: 0.2
+    force_dir: False
+    force_subdir: False
+
+  datasets:
+    train:
+      iterator:
+        set_name: "train"
+        patch_size: 512
+        augment: True
+      loader:
+        batch_size: 4
+        shuffle: True
+        num_workers: 4
+        report: True
+    val:
+      iterator:
+        set_name: "val"
+        patch_size: 512
+        augment: False
+      loader:
+        batch_size: 4
+        shuffle: False
+        num_workers: 4
+        report: True
+
+  model:
+    encoder_name: "efficientnet-b3"
+
+  trainer:
+    epochs: 50
+
+config_3:
+  cnn_splitter:
+    test_val_ratio: 0.2
+    force_dir: False
+    force_subdir: False
+
+  datasets:
+    train:
+      iterator:
+        set_name: "train"
+        patch_size: 512
+        augment: True
+      loader:
+        batch_size: 4
+        shuffle: True
+        num_workers: 4
+        report: True
+    val:
+      iterator:
+        set_name: "val"
+        patch_size: 512
+        augment: False
+      loader:
+        batch_size: 4
+        shuffle: False
+        num_workers: 4
+        report: True
+
+  model:
+    encoder_name: "seresnext50_32x4d"
+
+  trainer:
+    epochs: 50
+
+config_4:
+  cnn_splitter:
+    test_val_ratio: 0.2
+    force_dir: False
+    force_subdir: False
+
+  datasets:
+    train:
+      iterator:
+        set_name: "train"
+        patch_size: 512
+        augment: True
+      loader:
+        batch_size: 4
+        shuffle: True
+        num_workers: 4
+        report: True
+    val:
+      iterator:
+        set_name: "val"
+        patch_size: 512
+        augment: False
+      loader:
+        batch_size: 4
+        shuffle: False
+        num_workers: 4
+        report: True
+
+  model:
+    encoder_name: "resnet101"
+
+  trainer:
+    epochs: 50
+
+config_5:
+  cnn_splitter:
+    test_val_ratio: 0.2
+    force_dir: False
+    force_subdir: False
+
+  datasets:
+    train:
+      iterator:
+        set_name: "train"
+        patch_size: 512
+        augment: True
+      loader:
+        batch_size: 4
+        shuffle: True
+        num_workers: 4
+        report: True
+    val:
+      iterator:
+        set_name: "val"
+        patch_size: 512
+        augment: False
+      loader:
+        batch_size: 4
+        shuffle: False
+        num_workers: 4
+        report: True
+
+  model:
+    encoder_name: "timm-efficientnet-b4"
+
+  trainer:
+    epochs: 50
+
+config_6:
+  cnn_splitter:
+    test_val_ratio: 0.2
+    force_dir: False
+    force_subdir: False
+
+  datasets:
+    train:
+      iterator:
+        set_name: "train"
+        patch_size: 512
+        augment: True
+      loader:
+        batch_size: 4
+        shuffle: True
+        num_workers: 4
+        report: True
+    val:
+      iterator:
+        set_name: "val"
+        patch_size: 512
+        augment: False
+      loader:
+        batch_size: 4
+        shuffle: False
+        num_workers: 4
+        report: True
+
+  model:
+    encoder_name: "inceptionresnetv2"
+
+  trainer:
+    epochs: 50
+
+config_7:
+  cnn_splitter:
+    test_val_ratio: 0.2
+    force_dir: False
+    force_subdir: False
+
+  datasets:
+    train:
+      iterator:
+        set_name: "train"
+        patch_size: 512
+        augment: True
+      loader:
+        batch_size: 4
+        shuffle: True
+        num_workers: 4
+        report: True
+    val:
+      iterator:
+        set_name: "val"
+        patch_size: 512
+        augment: False
+      loader:
+        batch_size: 4
+        shuffle: False
+        num_workers: 4
+        report: True
+
+  model:
+    encoder_name: "mit_b2"
+
+  trainer:
+    epochs: 50
