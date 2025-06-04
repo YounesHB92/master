@@ -1,8 +1,7 @@
 import os
 import shutil
 
-from src.utils import env_config, path_, general
-_ = env_config.load_env_variables()
+from src.utils import env_, path_, general
 from src.datasets import SplitterCore
 from tqdm import tqdm
 
@@ -22,6 +21,7 @@ class CnnSplitter(SplitterCore):
     def __init__(self, test_val_ratio, force_dir, random_state=42, force_subdir=False, *args, **kwargs):
         super().__init__(test_val_ratio, force_dir, random_state, *args, **kwargs)
 
+        self.split_dir = env.get_split_path()
         self.output_dir = os.path.join(os.getenv("SPLIT_DATA_DIR"), "cnn_splits")
         self.force_subdir = force_subdir
         path_.handle_path(self.output_dir, force=force_subdir)

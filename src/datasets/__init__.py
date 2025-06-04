@@ -2,3 +2,4 @@ from .splitter_core import *
 from .classification import *
 from .segmentation import *
 from .cnn import *
+from .dataset_checker import *

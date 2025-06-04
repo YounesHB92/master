@@ -1,20 +1,10 @@
 import os
-
+from . import  vars
 import numpy as np
 from PIL import Image
+import cv2
 
-from tqdm import tqdm
-
-
-def check_image_files(path, verbose=True):
-    files = os.listdir(path)
-    loop = tqdm(files, total=len(files), desc="Checking image files in {}".format(path))
-    for file in loop:
-        if file.split(".")[-1] not in ["jpg", "jpeg", "png"]:
-            raise ValueError("Image must be JPEG or PNG, found {}".format(file))
-    if verbose:
-        print("All image files are valid, path: {}".format(path))
-
+import random
 
 def rebuild_mask(mask_file, classes_list, classes_dict, crack_types):
     # load_mask
@@ -37,3 +27,56 @@ def rebuild_mask(mask_file, classes_list, classes_dict, crack_types):
 
 def save_rebuilt_mask(rebuilt_mask, path):
     Image.fromarray(rebuilt_mask).save(path)
+
+
+def label_to_mask(image_path, label_path):
+    # Load image
+    img = cv2.imread(image_path)
+    annotated_img = img.copy()
+    h, w = img.shape[:2]
+
+    # Initialize mask
+    mask = np.zeros((h, w), dtype=np.uint8)
+
+    # Fixed color map (10 distinct colors)
+    class_colors = vars.class_colors
+
+    # Read label file
+    with open(label_path, "r") as f:
+        lines = f.readlines()
+        for line in lines:
+            try:
+                parts = line.strip().split()
+                raw_class_id = parts[0]
+                if raw_class_id.lower() == "none":
+                    continue  # skip line
+
+                class_id = int(float(raw_class_id)) + 1  # reserve 0 for background
+                coords = list(map(float, parts[1:]))
+
+                points = np.array([[int(x * w), int(y * h)] for x, y in zip(coords[::2], coords[1::2])], dtype=np.int32)
+
+                cv2.fillPoly(mask, [points], color=class_id)
+
+                # Draw outline and label in annotated image
+                color = class_colors.get(class_id, (255, 255, 255))  # fallback to white
+                cv2.polylines(annotated_img, [points], isClosed=True, color=color, thickness=2)
+                cv2.putText(annotated_img, f"{class_id}", tuple(points[0]), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
+
+            except Exception as e:
+                print(f"[Warning] Skipping bad line in {label_path}: '{line.strip()}' ({e})")
+                continue  # skip malformed or bad lines
+
+    return mask, annotated_img
+
+def visualize_mask(mask):
+    # Define same fixed class colors (BGR turned to RGB for visualization)
+    class_colors = vars.class_colors
+
+    h, w = mask.shape
+    rgb_mask = np.zeros((h, w, 3), dtype=np.uint8)
+
+    for class_id, color in class_colors.items():
+        rgb_mask[mask == class_id] = color
+
+    return rgb_mask

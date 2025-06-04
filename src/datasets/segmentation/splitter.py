@@ -3,10 +3,7 @@ import shutil
 
 import pandas as pd
 from .. import SplitterCore
-from src.utils import general, image, env_config
-
-_ = env_config.load_env_variables()
-
+from src.utils import general, image, env_
 
 class SegmentationSplitter(SplitterCore):
     def __init__(self, test_val_ratio, force_dir, classes_list, random_state=42):
@@ -36,14 +33,14 @@ class SegmentationSplitter(SplitterCore):
                 counter += 1
 
     def load_crack_types(self):
-        return pd.read_csv(os.path.join(os.getenv("RAW_DATA_DIR"), "classes", "crack_types.csv"))
+        raw_path = env.get_raw_path()
+        return pd.read_csv(os.path.join(raw_path, "classes", "crack_types.csv"))
 
     def run(self):
-        dir_name = "seg_masks"
-        split_dir = os.getenv("SPLIT_DATA_DIR")
+        split_dir = env.get_split_path()
         for set_name in self.set_names:
             set_path = os.path.join(split_dir, set_name)
-            path = os.path.join(set_path, dir_name)
+            path = os.path.join(set_path, "seg_masks")
             self.handle_path(path)
             mask_files = self.sets[set_name]["masks"]
             for mask_file in general.tqdm_print(mask_files, desc=f"Rebuilding masks for set {set_name}", total=len(mask_files)):
@@ -53,7 +50,7 @@ class SegmentationSplitter(SplitterCore):
                     classes_dict=self.classes,
                     crack_types=self.crack_types
                 )
-                saving_path = os.path.join(set_path, dir_name, mask_file)
+                saving_path = os.path.join(set_path, "seg_masks", mask_file)
                 image.save_rebuilt_mask(rebuilt_mask, saving_path)
 
     def handle_path(self, path):

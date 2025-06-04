@@ -18,7 +18,7 @@ def find_encoder_name(model_name):
             epoch_index = num
 
     if encoder_index is None or epoch_index is None:
-        raise Exception("Could not find a valid encoder name")
+        raise Exception("Could not find a val encoder name")
 
     encoder_name = parts[encoder_index + 1:epoch_index]
     return "_".join(encoder_name)

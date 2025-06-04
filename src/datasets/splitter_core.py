@@ -34,7 +34,7 @@ class SplitterCore:
             for file in utils.tqdm_print(files, desc="Checking files", total=len(files)):
                 if not file.endswith(('.jpg', '.png', '.jpeg')):
                     raise ValueError(f"Invalid file format: {file}. Only .jpg, .png, and .jpeg are allowed.")
-            print_indented("All raw files are valid.", level=1)
+            print_indented("All raw files are val.", level=1)
         self.raw_images_path = images_raw_path
         self.raw_masks_path = masks_raw_path
 

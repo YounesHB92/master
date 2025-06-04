@@ -1,0 +1,6 @@
+config_1:
+  db_name: "rcd"
+  patch_size: 256
+  model_name: "DeepLabV3Plus"
+  encoder_name: "resnet101"
+  epochs: 2

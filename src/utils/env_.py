@@ -4,7 +4,6 @@ import pandas as pd
 import yaml
 from dotenv import load_dotenv
 
-
 def find_env():
     try:
         import google.colab
@@ -25,13 +24,14 @@ def load_env_variables():
     load_dotenv(dotenv_path=dotenv_path)
     return base_path, environment
 
+_, _ = load_env_variables()
 
-def find_configs(mode):
-    env = find_env()
+
+def find_configs(mode, env):
     if env == "colab":
-        configs_file = f"/content/master/colab_{mode}_configs.yaml"
+        configs_file = f"/content/master/configs/colab_{mode}_configs.yaml"
     else:
-        configs_file = f"local_{mode}_configs.yaml"
+        configs_file = f"configs/local_{mode}_configs.yaml"
     with open(configs_file, "r") as file:
         configs = yaml.safe_load(file)
     return configs
@@ -85,3 +85,23 @@ def get_config_info(config_path, mode):
     }
 
     return config_info
+
+def get_split_path(db_name="mine"):
+    return os.path.join(os.getenv("SPLIT_DATA_DIR"), db_name)
+
+def get_raw_path():
+    return os.getenv("RAW_DATA_DIR")
+
+def get_working_dir(env_name):
+    if env_name == "local":
+        return "/home/younes/Desktop/projects/master"
+    elif env_name == "colab":
+        return "/content/master"
+    else:
+        raise Exception(f"Unknown environment name: {env_name}")
+
+def get_checkpoints_path():
+    return os.getenv("CHECKPOINTS_DIR")
+
+def get_logs_path():
+    return os.getenv("LOGS_DIR")

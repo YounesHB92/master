@@ -1,12 +1,13 @@
 import os
 
 import albumentations as A
+import cv2
+import numpy as np
 import torch
 from PIL import Image
 from albumentations.pytorch import ToTensorV2
-from src.utils import load_env_variables
-import numpy as np
-_ = load_env_variables()
+
+from src.utils import env_
 
 
 class SegmentationIterator(torch.utils.data.Dataset):
@@ -16,7 +17,9 @@ class SegmentationIterator(torch.utils.data.Dataset):
         patch_size: patch size
         augment: keep it true for train and false for val, and test
     """
-    def __init__(self, set_name, patch_size, augment=True):
+
+    def __init__(self, db_name, set_name, patch_size, augment=True):
+        self.db_name = db_name
         self.set_name = set_name
         self.create_paths()
         self.patch_size = patch_size
@@ -56,36 +59,32 @@ class SegmentationIterator(torch.utils.data.Dataset):
         return np.array(mask)
 
     def transform_augmented(self, image, mask):
+        image = np.array(image, dtype=np.uint8)
+        mask = np.array(mask, dtype=np.uint8)  # <-- ENSURE dtype is uint8 for label mask
+
         transform = A.Compose([
-            A.Resize(self.patch_size, self.patch_size),
+            A.Resize(self.patch_size, self.patch_size, interpolation=cv2.INTER_NEAREST),  # <--- critical
             A.HorizontalFlip(p=0.5),
             A.VerticalFlip(p=0.2),
             A.RandomRotate90(p=0.5),
-            A.ShiftScaleRotate(
-                shift_limit=0.0625, scale_limit=0.1, rotate_limit=15,
-                p=0.5, border_mode=0
-            ),
             A.RandomBrightnessContrast(
                 brightness_limit=0.2, contrast_limit=0.2, p=0.5
             ),
-            A.RandomGamma(
-                gamma_limit=(80, 120), p=0.3
-            ),
-            A.GaussNoise(
-                p=0.2
-            ),
-            A.ElasticTransform(
-                alpha=1, sigma=50, p=0.2
-            ),
+            A.RandomGamma(gamma_limit=(80, 120), p=0.3),
+            A.GaussNoise(p=0.2),
+            A.ElasticTransform(alpha=1, sigma=50, p=0.2),
             A.GridDistortion(p=0.2),
-            A.Normalize(
-                mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)
-            ),
+            A.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)),
             ToTensorV2()
         ])
+
         return transform(image=image, mask=mask)
 
     def transform_no_augment(self, image, mask):
+
+        image = np.array(image, dtype=np.uint8)
+        mask = np.array(mask, dtype=np.uint8)
+
         transform = A.Compose([
             A.Resize(self.patch_size, self.patch_size),
             A.Normalize(
@@ -96,8 +95,10 @@ class SegmentationIterator(torch.utils.data.Dataset):
         return transform(image=image, mask=mask)
 
     def create_paths(self):
-        images_dir = os.path.join(os.getenv("SPLIT_DATA_DIR"), self.set_name, "images")
-        masks_dir = os.path.join(os.getenv("SPLIT_DATA_DIR"), self.set_name, "seg_masks")
+
+        split_dir = env_.get_split_path(self.db_name)
+        images_dir = os.path.join(split_dir, self.set_name, "images")
+        masks_dir = os.path.join(split_dir, self.set_name, "seg_masks")
 
         images_files = sorted(os.listdir(images_dir))
         masks_files = sorted(os.listdir(masks_dir))
@@ -114,4 +115,3 @@ class SegmentationIterator(torch.utils.data.Dataset):
         if len(self.images_paths) != len(self.masks_paths):
             raise ValueError(
                 f"Number of images ({len(self.images_paths)}) and masks ({len(self.masks_paths)}) do not match!")
-
